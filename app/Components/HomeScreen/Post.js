@@ -1,49 +1,35 @@
 import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PostItem from './PostItem';
+import { collection, getDocs, getFirestore } from "firebase/firestore";
+import { app } from '../../../firebaseConfig';
 
-function Posts() {
-  const postList = [
-    {
-      imgSource: require('./../../../assets/images/plus-icon.png'),
-      caption: 'Grateful for this beautiful life and the amazing people in it.',
-      user: {
-        imgSource: require('./../../../assets/images/plus-icon.png'),
-        username: 'Shopia',
-        isOwn: false,
-        isHasStory: true
-      },
-    },
-    {
-      imgSource: require('./../../../assets/images/plus-icon.png'),
-      caption: 'Grateful for this beautiful life and the amazing people in it.',
-      user: {
-        imgSource: require('./../../../assets/images/plus-icon.png'),
-        username: 'Alexander',
-        isOwn: false,
-        isHasStory: true
-      },
-    },
-    {
-      imgSource: require('./../../../assets/images/plus-icon.png'),
-      caption: 'Grateful for this beautiful life and the amazing people in it.',
-      user: {
-        imgSource: require('./../../../assets/images/plus-icon.png'),
-        username: 'Shopia',
-        isOwn: false,
-        isHasStory: true
-      },
-    }
-  ]
+export default function Posts() {
+
+  const db = getFirestore(app);
+  const [videos, setVideos] = useState([]);
+
+  const getVideos = async () => {
+    const querySnapshot = await getDocs(collection(db, "addedPost"));
+    const videoArray = [];
+    
+    querySnapshot.forEach((doc) => {
+      const videoData = doc.data();
+      videoArray.push(videoData);
+    });
+
+    setVideos(videoArray);
+  }
+
+  useEffect(() => {
+    getVideos();
+  }, []);
+
   return (
     <View style={styles.container}>
-      {
-        postList.map((v, i) => {
-          return(
-            <PostItem key={i} item={v}/>
-          )
-        })
-      }
+      {videos.map((video, index) => (
+        <PostItem key={index} item={video} />
+      ))}
     </View>
   );
 }
@@ -54,4 +40,3 @@ const styles = StyleSheet.create({
   }
 })
 
-export default Posts;

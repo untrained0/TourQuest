@@ -25,7 +25,7 @@ export default function HomeScreenNavigation() {
         <Stack.Navigator screenOptions = {screenOptions}>
             <Stack.Screen name="AddPost" component={AddPostScreen} />
             <Stack.Screen name="Recorder" component={Recorder} />
-            {/* <Stack.Screen name="ChapterContent" component={ChapterContentScreen} /> */}
+            {/* <Stack.Screen name="CaptionDetail" component={CaptionDetail} /> */}
         </Stack.Navigator>
     )
 
