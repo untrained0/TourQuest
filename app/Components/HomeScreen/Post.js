@@ -36,7 +36,8 @@ export default function Posts() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20
+    marginTop: 20,
+    marginBottom:115,
   }
 })
 

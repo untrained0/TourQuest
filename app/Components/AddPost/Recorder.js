@@ -141,15 +141,18 @@ export default function Recorder() {
             <MaterialCommunityIcons name="camera-front" size={24} color="black" />
           </TouchableOpacity>
 
-          {/* {videoStatus && (
-            <TouchableOpacity style={styles.button} onPress={toggleRecordingPause}>
-              <MaterialCommunityIcons
-                name={isRecordingPaused ? 'play' : 'pause'}
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-          )} */}
+          {videoStatus==1 && (
+  <TouchableOpacity style={styles.button} onPress={toggleRecordingPause}>
+    <View>
+      <MaterialCommunityIcons
+        name={isRecordingPaused ? 'play' : 'pause'}
+        size={24}
+        color="black"
+      />
+    </View>
+  </TouchableOpacity>
+)}
+          
         </View>
       </Camera>
     </View>
@@ -159,6 +162,7 @@ export default function Recorder() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginBottom: 60,
   },
   camera: {
     flex: 1,

@@ -1,70 +1,120 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Avator from './Avator';
 import { useUser } from '@clerk/clerk-expo';
-import Video from 'react-native-video';
+import { Video } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import CaptionWithReadMore from './CaptionWithReadMore';
+import { doc, getFirestore, updateDoc } from "firebase/firestore";
+import { app } from '../../../firebaseConfig';
 
-function PostItem({ item }) {
+
+export default function PostItem({ item }) {
+
+  const db = getFirestore(app);
 
   const video = useRef(null);
-  const [isAudioPaused, setAudioPaused] = useState(true);
+  const [shouldPlay, setShouldPlay] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(item?.Likes);
+
 
   const { user } = useUser();
 
-  const handleToggleAudio = () => {
-    if (video.current) {
-      setAudioPaused(!isAudioPaused);
+  useEffect(() => {
+    // Update likeCount when item.Likes changes
+    setLikeCount(item?.Likes);
+  }, [item?.Likes]);
+
+  // Pause the previous video when a new one is about to play
+  useEffect(() => {
+    const playbackObject = video.current;
+
+    return () => {
+      if (playbackObject) {
+        playbackObject.pauseAsync();
+      }
+    };
+  }, [shouldPlay]);
+
+  const handlePlayPause = () => {
+    setShouldPlay(!shouldPlay);
+  };
+
+  const followBtnPress = () => {
+    // Handle the press event
+    console.log('Follow button pressed!');
+  };
+
+  const handleLikePress = async () => {
+    setIsLiked(!isLiked);
+    const newCount = likeCount + (isLiked ? -1 : 1);
+
+    try {
+      const washingtonRef = doc(db, "addedPost", item?.id);
+      await updateDoc(washingtonRef, { Likes: newCount });
+      setLikeCount(newCount);
+    } catch (error) {
+      console.error("Error updating like:", error);
+      // Revert local like count in case of an error
+      setIsLiked(!isLiked);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ marginBottom: 20 }}>
       <View style={styles.headerContainer}>
         <View style={styles.headerUserContainer}>
           <Avator imgSource={{ uri: user?.imageUrl }} size={40} />
           <Text style={styles.headerUsername}>{item?.userName}</Text>
-          <Image
+          {/* <Image
             source={require('./../../../assets/images/plus-icon.png')}
             style={styles.verifiedIcon}
-          />
+          /> */}
         </View>
-        <Image
-          source={require('./../../../assets/images/plus-icon.png')}
-          style={styles.optionIcon}
-        />
+        <TouchableOpacity
+          style={styles.followButtonContainer}
+          onPress={followBtnPress}
+          activeOpacity={0.7} // Adjust the opacity to control the press effect
+        >
+          <Text style={styles.followButtonText}>Follow</Text>
+        </TouchableOpacity>
       </View>
+      {/* <Image 
+        source={{ uri: user?.imageUrl }}
+        style={styles.postImage}
+      /> */}
 
-      <TouchableOpacity onPress={handleToggleAudio} style={styles.audioButton}>
-        {isAudioPaused ? (
-          <Ionicons name="mic-off" size={24} color="black" />
-        ) : (
-          <Ionicons name="mic" size={24} color="black" />
-        )}
+      <TouchableOpacity onPress={() => handlePlayPause()}>
+        <Video
+          ref={video}
+          style={{ width: Dimensions.get('window').width,
+           height: 600, borderRadius: 4}}
+          source={{
+            uri: item?.VideoUrl,
+          }}
+          useNativeControls={false}// Set to false to hide controls
+          shouldPlay={shouldPlay} // Set to true for autoplay
+          resizeMode="cover"
+          isLooping
+        />
       </TouchableOpacity>
 
-      <Video
-        ref={video}
-        style={{ width: '100%', height: 200 }}
-        source={{ uri: item?.VideoUrl }}
-        paused={isAudioPaused}
-        resizeMode="cover"
-        repeat
-        ignoreSilentSwitch="ignore"
-      />
 
       <View style={styles.actionContainer}>
         <View style={styles.actionLeftContainer}>
-          <Image
-            source={require('./../../../assets/images/plus-icon.png')}
-            style={styles.actionItem}
-          />
-          <Image
-            source={require('./../../../assets/images/plus-icon.png')}
-            style={styles.actionItem}
-          />
-          <Image
-            source={require('./../../../assets/images/plus-icon.png')}
+          <TouchableOpacity onPress={handleLikePress}>
+            <Ionicons
+              name={isLiked ? 'heart' : 'heart-outline'}
+              size={24}
+              color={isLiked ? 'red' : 'black'}
+            />
+          </TouchableOpacity> 
+         <FontAwesome name="comment-o" size={24} color="black" />
+         <Image
+            source={require('./../../../assets/images/share_button.png')}
             style={styles.actionItem}
           />
         </View>
@@ -76,10 +126,10 @@ function PostItem({ item }) {
         </View>
       </View>
       <View style={styles.descriptionContainer}>
-        <Text style={styles.like}>{item?.Likes + 1} likes</Text>
+        <Text style={styles.like}>{likeCount} likes</Text>
         <Text style={styles.captionContainer}>
           <Text style={styles.username}>{item?.userName} </Text>
-          {item.caption}
+          <CaptionWithReadMore caption={item?.caption} maxLength={50} />
         </Text>
       </View>
       <Text style={styles.commentCount}>View all 20 comments</Text>
@@ -89,6 +139,21 @@ function PostItem({ item }) {
 }
 
 const styles = StyleSheet.create({
+  followButtonContainer: {
+    backgroundColor: '#0095f6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#0095f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  followButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
   container: {
     marginBottom: 20
   },
@@ -97,6 +162,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     alignItems: 'center',
+    marginBottom: 5
   },
   headerUserContainer: {
     flexDirection: 'row',
@@ -131,9 +197,12 @@ const styles = StyleSheet.create({
   },
   actionLeftContainer: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    gap: 15,
+    alignItems: 'center',
+    marginLeft: 8
   },
-  actionContainerRight: {
+  actionRightContainer: {
     flexDirection: 'row',
     alignItems: 'center'
   },
@@ -141,7 +210,7 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     resizeMode: 'contain',
-    marginHorizontal: 10
+
   },
   descriptionContainer: {
     paddingHorizontal: 20,
@@ -167,4 +236,3 @@ const styles = StyleSheet.create({
   }
 })
 
-export default PostItem;
