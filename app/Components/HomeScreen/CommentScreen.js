@@ -9,7 +9,6 @@ export default function CommentScreen({ item }) {
   const db = getFirestore(app);
   const { user } = useUser();
   const flatListRef = useRef(null);
-
   const [commentText, setCommentText] = useState('');
   const [comment, setComment] = useState([]);
 
@@ -20,28 +19,31 @@ export default function CommentScreen({ item }) {
     // Add more comments as needed
   ];
 
-//   useEffect(() => {
-//     getComments();
-//   }, []);
+  console.log(comments);
 
-// const getComments = async () => {
-//   const docRef = doc(db, "addedPost", item?.id);
-//   const docSnap = await getDoc(docRef);
+  useEffect(() => {
+    getComments();
+  }, []);
 
-//   if (docSnap.exists()) {
-//     console.log("Document data:", docSnap.data());
-//     setComment(docSnap.data()?.Comments || []);
-//   } else {
-//     console.log("No such document!");
-//   }
-// };
+  const getComments = async () => {
+    const docRef = doc(db, "addedPost", item?.id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+      console.log(docSnap.data()?.Comments || []);
+      setComment(docSnap.data()?.Comments || []);
+    } else {
+      console.log("No such document!");
+    }
+  };
 
   const addComment = async () => {
     console.log("Comment Added!");
     const washingtonRef = doc(db, "addedPost", item?.id);
 
     const newComment = {
-      // id: comments.length + 1, // You can generate a unique ID based on your requirements
+      id: (comment.length + 1).toString(), // You can generate a unique ID based on your requirements
       username: user?.fullName, // Assuming you can get the username from the user object
       text: commentText,
     };
@@ -74,7 +76,7 @@ export default function CommentScreen({ item }) {
           value={commentText}
           onChangeText={setCommentText}
         />
-        <TouchableOpacity  onPress={addComment}>
+        <TouchableOpacity style={{ zIndex: 10 }} onPress={addComment}>
           <Ionicons name="chevron-forward-circle" size={40} color="black" />
         </TouchableOpacity>
       </View>
@@ -82,13 +84,13 @@ export default function CommentScreen({ item }) {
       {/* Comment List */}
       <FlatList
         data={comments}
-        ref={flatListRef}
+        // ref={flatListRef}
 
-        // keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <View key={index} style={styles.commentContainer}>
-            {/* <Text style={styles.commentUsername}>{item.username}</Text> */}
-            <Text>{item.text}</Text>
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.commentContainer}>
+            <Text style={styles.commentUsername}>{item?.username}</Text>
+            <Text>{item?.text}</Text>
           </View>
         )}
       />
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
   },
   commentContainer: {
     padding: 10,
-    borderBottomWidth: 1,
+    // borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
   commentUsername: {

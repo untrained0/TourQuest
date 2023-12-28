@@ -9,6 +9,10 @@ export default function Posts() {
   const db = getFirestore(app);
   const [videos, setVideos] = useState([]);
 
+  useEffect(() => {
+    getVideos();
+  }, []);
+
   const getVideos = async () => {
     const querySnapshot = await getDocs(collection(db, "addedPost"));
     const videoArray = [];
@@ -20,10 +24,6 @@ export default function Posts() {
 
     setVideos(videoArray);
   }
-
-  useEffect(() => {
-    getVideos();
-  }, []);
 
   return (
     <View style={styles.container}>

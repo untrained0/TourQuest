@@ -65,7 +65,7 @@ export default function AddPostScreen() {
       userEmail: user?.primaryEmailAddress?.emailAddress,
       userName: user?.fullName,
       Likes: 0,
-      Comments : 0,
+      Comments : [],
       id: docId,
     });
     // setFileDocId(docId);

@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, Modal } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Avator from './Avator';
 import { useUser } from '@clerk/clerk-expo';
@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CaptionWithReadMore from './CaptionWithReadMore';
 import { doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from '../../../firebaseConfig';
+import CommentScreen from './CommentScreen';
 
 
 export default function PostItem({ item }) {
@@ -19,7 +20,7 @@ export default function PostItem({ item }) {
   const [shouldPlay, setShouldPlay] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(item?.Likes);
-
+  const [modalVisible, setModalVisible] = useState(false);
 
   const { user } = useUser();
 
@@ -63,6 +64,10 @@ export default function PostItem({ item }) {
     }
   };
 
+  const handleCommentPress = () => {
+    setModalVisible(true);
+  };
+
   return (
     <View style={{ marginBottom: 20 }}>
       <View style={styles.headerContainer}>
@@ -90,8 +95,10 @@ export default function PostItem({ item }) {
       <TouchableOpacity onPress={() => handlePlayPause()}>
         <Video
           ref={video}
-          style={{ width: Dimensions.get('window').width,
-           height: 600, borderRadius: 4}}
+          style={{
+            width: Dimensions.get('window').width,
+            height: 600, borderRadius: 4
+          }}
           source={{
             uri: item?.VideoUrl,
           }}
@@ -111,18 +118,24 @@ export default function PostItem({ item }) {
               size={24}
               color={isLiked ? 'red' : 'black'}
             />
-          </TouchableOpacity> 
-         <FontAwesome name="comment-o" size={24} color="black" />
-         <Image
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleCommentPress}>
+            <FontAwesome name="comment-o" size={24} color="black" />
+          </TouchableOpacity>
+
+          <Image
             source={require('./../../../assets/images/share_button.png')}
             style={styles.actionItem}
           />
         </View>
         <View style={styles.actionRightContainer}>
-          <Image
-            source={require('./../../../assets/images/plus-icon.png')}
-            style={styles.actionItem}
-          />
+          <TouchableOpacity
+            style={styles.followButtonContainer}
+            // onPress={followBtnPress}
+            activeOpacity={0.7} // Adjust the opacity to control the press effect
+          >
+            <Text style={styles.followButtonText}>Tour</Text>
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.descriptionContainer}>
@@ -132,9 +145,28 @@ export default function PostItem({ item }) {
           <CaptionWithReadMore caption={item?.caption} maxLength={50} />
         </Text>
       </View>
-      <Text style={styles.commentCount}>View all 20 comments</Text>
+      <TouchableOpacity onPress={() => handleCommentPress()}>
+        <Text style={styles.commentCount}>View all {item?.Comments} comments</Text>
+      </TouchableOpacity>
       <Text style={styles.postCreated}>4 days ago</Text>
+
+      {/* Comment Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <CommentScreen item={item} />
+          </View>
+        </View>
+      </Modal>
     </View>
+
   );
 }
 
@@ -204,7 +236,8 @@ const styles = StyleSheet.create({
   },
   actionRightContainer: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginRight: 12,
   },
   actionItem: {
     width: 25,
@@ -233,6 +266,14 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginTop: 7,
     color: '#606060'
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end', // align modal content at the bottom
+  },
+  modalContent: {
+    // backgroundColor: 'transparent',
+    height: '60%', // Set height to 60% of the screen height
+  },
 })
 
