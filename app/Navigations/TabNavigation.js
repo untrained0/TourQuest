@@ -6,8 +6,10 @@ import { FontAwesome } from '@expo/vector-icons';
 import SignUpScreen from '../Screens/SignUpScreen';
 import ProfileScreen from '../Screens/ProfileScreen';
 import AddPostNavigation from './../Navigations/AddPostNavigation';
+import ProfileScreenNavigation from './../Navigations/ProfileScreenNavigation';
 import HomeScreen from '../Screens/HomeScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import OnBoardingScreen from '../Screens/OnBoardingScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,13 +45,13 @@ export default function TabNavigation() {
           )
         }}
       />
-      <Tab.Screen name="Profile" component={ProfileScreen}
+      <Tab.Screen name="Profile" component={ProfileScreenNavigation}
         options={{
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="user" size={size} color={color} />
           )
         }} />
-      <Tab.Screen name="Signin" component={SignUpScreen}
+      <Tab.Screen name="OnBoarding" component={OnBoardingScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
 import Colors from '../../Utils/Colors';
 import Coin from './../../../assets/images/coin.png';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { useUser } from '@clerk/clerk-expo';
+import { UserDetailContext } from '../../Contexts/UserDetailContext';
 
 export default function HomeScreen({ fullname }) {
 
@@ -12,6 +13,8 @@ export default function HomeScreen({ fullname }) {
 // console.log('isSignedInWithClerk', user?.isSignedInWithClerk);
 
     const { isLoaded, isSignedIn, user } = useUser();
+    const {userDetail, setUserDetail} = useContext(UserDetailContext);
+
 
     return isLoaded && isSignedIn && (
         <View>
@@ -20,7 +23,7 @@ export default function HomeScreen({ fullname }) {
              
                     <View style={styles.rowStyle}>
                         <Image
-                            source={{ uri: user?.imageUrl }}
+                            source={{ uri: userDetail.image }}
                             style={{ width: 50, height: 50, borderRadius: 99 }}
                         />
                         
@@ -28,7 +31,7 @@ export default function HomeScreen({ fullname }) {
                 
                 <View style={styles.rowStyle}>
                     <Image source={Coin} style={{ width: 35, height: 35 }} />
-                    <Text style={styles.mainText}>3500</Text>
+                    <Text style={styles.mainText}>{userDetail.points}</Text>
                 </View>
             </View>
 
