@@ -13,7 +13,7 @@ export default function HomeScreen() {
       </View>
       <ScrollView       
       showsHorizontalScrollIndicator = {false}>
-      <Stories />
+      {/* <Stories /> */}
       <Post />
       </ScrollView> 
     </View>

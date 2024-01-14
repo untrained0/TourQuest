@@ -46,7 +46,8 @@ export default function App() {
     username: '',
     bio: '',
     image: null,
-    points: 0
+    points: 0,
+    following: []
 });
 
   const [fontsLoaded] = useFonts({
@@ -70,8 +71,8 @@ export default function App() {
           <View style={styles.container}>
             <SignedIn>
               <NavigationContainer>
-                {/* <TabNavigation /> */}
-                <NewUserNavigation />
+                <TabNavigation />
+                {/* <NewUserNavigation /> */}
               </NavigationContainer>
               {/* <OnBoardingScreen /> */}
             </SignedIn>

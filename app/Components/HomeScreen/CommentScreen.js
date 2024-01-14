@@ -19,42 +19,54 @@ export default function CommentScreen({ item }) {
     // Add more comments as needed
   ];
 
-  console.log(comments);
+  // console.log(comments);
 
   useEffect(() => {
     getComments();
   }, []);
 
   const getComments = async () => {
-    const docRef = doc(db, "addedPost", item?.id);
+    console.log(item?.PostId);
+    const docRef = doc(db, "addedPost", item?.PostId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       console.log("Document data:", docSnap.data());
       console.log(docSnap.data()?.Comments || []);
       setComment(docSnap.data()?.Comments || []);
+      console.log(comment?.Comments);
     } else {
       console.log("No such document!");
     }
   };
 
+  // console.log(comment);
+
   const addComment = async () => {
     console.log("Comment Added!");
-    const washingtonRef = doc(db, "addedPost", item?.id);
-
+    const washingtonRef = doc(db, 'addedPost', item?.PostId);
+  
     const newComment = {
       id: (comment.length + 1).toString(), // You can generate a unique ID based on your requirements
       username: user?.fullName, // Assuming you can get the username from the user object
       text: commentText,
     };
-
+  
     // Atomically add a new region to the "regions" array field.
     await updateDoc(washingtonRef, {
       Comments: arrayUnion(newComment),
     });
+  
+    // Update the item prop with the new data
+    setItem((prevItem) => ({
+      ...prevItem,
+      Comments: [...prevItem.Comments, newComment],
+    }));
+  
     // Clear the comment input after adding the comment
     setCommentText('');
-  }
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -83,7 +95,7 @@ export default function CommentScreen({ item }) {
 
       {/* Comment List */}
       <FlatList
-        data={comments}
+        data={comment}
         // ref={flatListRef}
 
         keyExtractor={(item) => item.id}

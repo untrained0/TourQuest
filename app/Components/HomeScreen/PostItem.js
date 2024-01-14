@@ -1,5 +1,5 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, Modal } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, Modal, ToastAndroid, Alert } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Avator from './Avator';
 import { useUser } from '@clerk/clerk-expo';
 import { Video } from 'expo-av';
@@ -10,29 +10,77 @@ import CaptionWithReadMore from './CaptionWithReadMore';
 import { doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from '../../../firebaseConfig';
 import CommentScreen from './CommentScreen';
+import { UserDetailContext } from '../../Contexts/UserDetailContext';
 
 
 export default function PostItem({ item }) {
-
   const db = getFirestore(app);
-
   const video = useRef(null);
   const [shouldPlay, setShouldPlay] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(item?.Likes);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false); // New state
 
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const { user } = useUser();
 
   useEffect(() => {
-    // Update likeCount when item.Likes changes
     setLikeCount(item?.Likes);
   }, [item?.Likes]);
 
-  // Pause the previous video when a new one is about to play
+  const followBtnPress = async (followID) => {
+    console.log('Follow button pressed!');
+    const washingtonRef = doc(db, "UserDetail", " " + userDetail.id.trim());
+
+    setUserDetail(prevState => ({
+      ...prevState,
+      following: [...prevState.following, followID],
+    }));
+
+    await updateDoc(washingtonRef, {
+      userDetail: userDetail,
+    });
+
+    setIsFollowing(true);
+    ToastAndroid.show('Followed Successfully!', ToastAndroid.SHORT);
+  };
+
+  const unfollowBtnPress = (followID) => {
+    console.log('function called!');
+    Alert.alert(
+      'Confirm Unfollow',
+      'Are you sure you want to unfollow?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Unfollow',
+          onPress: async () => {
+            const washingtonRef = doc(db, "UserDetail", " " + userDetail.id.trim());
+
+            setUserDetail(prevState => ({
+              ...prevState,
+              following: prevState.following.filter(id => id !== followID),
+            }));
+
+            await updateDoc(washingtonRef, {
+              userDetail: userDetail,
+            });
+
+            setIsFollowing(false);
+            ToastAndroid.show('Unfollowed Successfully!', ToastAndroid.SHORT);
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   useEffect(() => {
     const playbackObject = video.current;
-
     return () => {
       if (playbackObject) {
         playbackObject.pauseAsync();
@@ -44,22 +92,16 @@ export default function PostItem({ item }) {
     setShouldPlay(!shouldPlay);
   };
 
-  const followBtnPress = () => {
-    // Handle the press event
-    console.log('Follow button pressed!');
-  };
-
   const handleLikePress = async () => {
     setIsLiked(!isLiked);
     const newCount = likeCount + (isLiked ? -1 : 1);
 
     try {
-      const washingtonRef = doc(db, "addedPost", item?.id);
+      const washingtonRef = doc(db, "addedPost", item?.PostId);
       await updateDoc(washingtonRef, { Likes: newCount });
       setLikeCount(newCount);
     } catch (error) {
       console.error("Error updating like:", error);
-      // Revert local like count in case of an error
       setIsLiked(!isLiked);
     }
   };
@@ -67,6 +109,36 @@ export default function PostItem({ item }) {
   const handleCommentPress = () => {
     setModalVisible(true);
   };
+
+  const calculateTimeDifference = () => {
+    if (!item?.createdAt) {
+      return 'Unknown date';
+    }
+  
+    const currentDate = new Date();
+    const createdDate = item.createdAt.toDate(); // Convert Firestore timestamp to JavaScript Date object
+    
+    const timeDifference = Math.abs(currentDate - createdDate);
+    const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+  
+    if (daysDifference === 0) {
+      // If it's today, show hours
+      const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
+      if (hoursDifference > 0) {
+        return `${hoursDifference} ${hoursDifference === 1 ? 'hour' : 'hours'} ago`;
+      } else {
+        const minutesDifference = Math.floor(timeDifference / (1000 * 60));
+        return `${minutesDifference} ${minutesDifference === 1 ? 'minute' : 'minutes'} ago`;
+      }
+    } else if (daysDifference === 1) {
+      return 'Yesterday';
+    } else {
+      return `${daysDifference} ${daysDifference === 1 ? 'day' : 'days'} ago`;
+    }
+  };
+
+  // console.log(userDetail);
+  // console.log(item?.createdAt);
 
   return (
     <View style={{ marginBottom: 20 }}>
@@ -81,10 +153,18 @@ export default function PostItem({ item }) {
         </View>
         <TouchableOpacity
           style={styles.followButtonContainer}
-          onPress={followBtnPress}
-          activeOpacity={0.7} // Adjust the opacity to control the press effect
+          onPress={() => {
+            if (isFollowing) {
+              unfollowBtnPress(item?.UserID);
+            } else {
+              followBtnPress(item?.UserID);
+            }
+          }}
+          activeOpacity={0.7}
         >
-          <Text style={styles.followButtonText}>Follow</Text>
+          <Text style={styles.followButtonText}>
+            {isFollowing ? 'Following' : 'Follow'}
+          </Text>
         </TouchableOpacity>
       </View>
       {/* <Image 
@@ -123,10 +203,10 @@ export default function PostItem({ item }) {
             <FontAwesome name="comment-o" size={24} color="black" />
           </TouchableOpacity>
 
-          <Image
+          {/* <Image
             source={require('./../../../assets/images/share_button.png')}
             style={styles.actionItem}
-          />
+          /> */}
         </View>
         <View style={styles.actionRightContainer}>
           <TouchableOpacity
@@ -146,9 +226,9 @@ export default function PostItem({ item }) {
         </Text>
       </View>
       <TouchableOpacity onPress={() => handleCommentPress()}>
-        <Text style={styles.commentCount}>View all {item?.Comments} comments</Text>
+        <Text style={styles.commentCount}>View all {item?.Comments.length} {item?.Comments.length==1?'comment':'comments'}</Text>
       </TouchableOpacity>
-      <Text style={styles.postCreated}>4 days ago</Text>
+      <Text style={styles.postCreated}>{calculateTimeDifference()}</Text>
 
       {/* Comment Modal */}
       <Modal
