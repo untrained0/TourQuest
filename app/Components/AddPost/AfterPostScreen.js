@@ -33,51 +33,6 @@ export default function AfterPostScreen() {
     }
   }, [isFocused, params?.images]);
 
-  // const onAddPost = async () => {
-  //   const metadata = {
-  //     contentType: 'video/mp4',
-  //   };
-
-  //   const response = await fetch(params?.video);
-  //   const blob = await response.blob();
-
-  //   const storageRef = ref(storage, 'post-videos/' + Date.now() + '.mp4');
-  //   const uploadTask = uploadBytesResumable(storageRef, blob, metadata);
-
-  //   uploadTask.on(
-  //     'state_changed',
-  //     (snapshot) => {
-  //       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //       console.log('Upload is ' + progress + '% done');
-  //     },
-  //     (error) => {
-  //       console.error('Error uploading video:', error);
-  //     },
-  //     async () => {
-  //       const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-  //       console.log('File available at:', downloadURL);
-  //       saveInfo(downloadURL);
-  //     }
-  //   );
-  // };
-
-  // const saveInfo = async (videoUrl) => {
-  //   console.log('Data added in firebase database!');
-  //   const docId = generateRandomString();
-  //   await setDoc(doc(db, 'addedPost', docId), {
-  //     VideoUrl: videoUrl,
-  //     caption: caption,
-  //     userEmail: user?.primaryEmailAddress?.emailAddress,
-  //     userName: user?.fullName,
-  //     Likes: 0,
-  //     Comments: [],
-  //     PostId: docId,
-  //     UserID: userDetail.id,
-  //     createdAt: serverTimestamp(),
-  //   });
-  //   navigation.navigate('Home');
-  // };
-
   console.log(params?.video);
 
   return (
@@ -111,7 +66,7 @@ export default function AfterPostScreen() {
             // onPress={onAddPost}
             onPress = {() => navigation.navigate('PhotoDetail', {images: params.images, videoCaption: caption, video: params?.video})}
             >
-              <Text style={{ color: Colors.WHITE, fontSize: 20, padding: 5 }}>Add Post</Text>
+              <Text style={{ color: Colors.WHITE, fontSize: 20, padding: 5 }}>Next</Text>
             </TouchableOpacity>
           </View>
     </View>

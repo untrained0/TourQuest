@@ -53,7 +53,7 @@ export default function Profile() {
           profileImage={{ uri: userDetail.image }}
           bio={userDetail.bio}
           followers="3.6M"
-          following="35"
+          following={userDetail.following.length}
           post="458"
         />
         <ProfileButton

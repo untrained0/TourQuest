@@ -19,9 +19,9 @@ export default function PhotoDetailScreen() {
   const db = getFirestore(app);
 
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  console.log(params.videoCaption, params?.video);
-  console.log("for photo detail images: ", params?.images);
+
 
   useEffect(() => {
     console.log('Params:', params);
@@ -34,24 +34,24 @@ export default function PhotoDetailScreen() {
   }, [isFocused, params?.images]);
 
   const [capturedImages, setCapturedImages] = useState([]);
-  console.log(capturedImages);
 
   const onAddPost = async () => {
     const metadata = {
       contentType: 'video/mp4',
     };
-  
+
     const response = await fetch(params?.video);
     const blob = await response.blob();
-  
+
     const storageRef = ref(storage, 'post-videos/' + Date.now() + '.mp4');
     const uploadTask = uploadBytesResumable(storageRef, blob, metadata);
-  
+
     uploadTask.on(
       'state_changed',
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log('Upload is ' + progress + '% done');
+        setUploadProgress(progress);
       },
       (error) => {
         console.error('Error uploading video:', error);
@@ -116,6 +116,11 @@ export default function PhotoDetailScreen() {
           <Text style={{ color: Colors.WHITE, fontSize: 20, padding: 5 }}>Add Post</Text>
         </TouchableOpacity>
       </View>
+      {uploadProgress > 0 && (
+        <View style={styles.progressContainer}>
+          <Text>{`Uploading: ${Math.round(uploadProgress)}%`}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -151,5 +156,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.BLUE,
     padding: 12,
     borderRadius: 15,
+  },
+  progressContainer: {
+    alignItems: 'center',
+    marginTop: 10,
   },
 });

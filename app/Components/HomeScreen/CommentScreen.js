@@ -11,6 +11,7 @@ export default function CommentScreen({ item }) {
   const flatListRef = useRef(null);
   const [commentText, setCommentText] = useState('');
   const [comment, setComment] = useState([]);
+  // const [item,setItem] = useState([]);
 
   const comments = [
     { id: '1', username: 'john_doe', text: 'Great shot!' },
