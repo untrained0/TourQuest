@@ -65,15 +65,15 @@ export default function App() {
 
   return (
     <ClerkProvider
-      // tokenCache={tokenCache}
+      tokenCache={tokenCache}
       publishableKey={CLERK_PUBLISHABLE_KEY} >
       <NativeBaseProvider>
         <UserDetailContext.Provider value={{ userDetail, setUserDetail }} >
           <View style={styles.container}>
             <SignedIn>
               <NavigationContainer>
-                {/* <TabNavigation /> */}
-                <NewUserNavigation />
+                <TabNavigation />
+                {/* <NewUserNavigation /> */}
               </NavigationContainer>
               {/* <OnBoardingScreen /> */}
             </SignedIn>

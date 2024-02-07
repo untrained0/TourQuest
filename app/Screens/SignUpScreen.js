@@ -1,11 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, Image, View, TouchableOpacity } from 'react-native';
-import { Input, NativeBaseProvider, Button, Icon, Box, AspectRatio, ScrollView } from 'native-base';
+import { StyleSheet, Text, Image, View, TouchableOpacity, TextInput } from 'react-native';
+import { Input, NativeBaseProvider, Button, Icon, Box, AspectRatio, ScrollView, Center } from 'native-base';
 import * as WebBrowser from "expo-web-browser";
 import Colors from './../Utils/Colors'
 import { useOAuth } from "@clerk/clerk-expo";
 import { useWarmUpBrowser } from "./../../hooks/warmUpBrowser";
-
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -32,8 +31,8 @@ export default function SignUpScreen() {
 
 
   return (
-    <NativeBaseProvider config={{}}>
-      <ScrollView>
+    <NativeBaseProvider config={{}} >
+      <ScrollView style={styles.scrollView} >
         <Image source={require('./../../assets/images/login_react.png')} />
         
           {/* <Text style={{ textAlign: 'center', marginTop: 80, fontSize: 20 }}>Login/Signup</Text> */}
@@ -41,15 +40,30 @@ export default function SignUpScreen() {
             <Image source={require('./../../assets/images/google_logo.png')} style={{ width: 30, height: 30, marginRight: 15 }} />
             <Text style={{ color: Colors.PRIMARY, fontSize:15 }}>Sign In with Google</Text>
           </TouchableOpacity>
-
+          <View style={styles.inputField}>
+            <TextInput placeholder='Username' style={styles.input} />
+          </View>
+          <View style={styles.inputField}>
+            <TextInput placeholder='Password' secureTextEntry={true} style={styles.input} />  
+          </View>
+          <Text style={styles.text}>Forget Password</Text>
+          <TouchableOpacity style={styles.signUpButton}>
+            <Text style={{ color: Colors.WHITE }}>Sign Up</Text>
+          </TouchableOpacity>
       </ScrollView>
     </NativeBaseProvider>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
   button: {
-    backgroundColor: Colors.WHITE,
+    backgroundColor: Colors.bgColor,
     padding: 10,
     margin: 30,
     display: 'flex',
@@ -57,5 +71,36 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
+    width: 300,
+  },
+  inputField: {
+    backgroundColor: Colors.LIGHTGRAY,
+    height: 50,
+    width: 300,
+    margin: 20,
+    borderRadius: 10,
+    
+  },
+  input: {
+    flex: 1,
+    // padding: 100
+    paddingLeft: 20
+  },
+  text: {
+    // paddingLeft: 150,
+    color: Colors.BLUE,
+    textAlign: 'center'  
+  },
+  signUpButton: {
+    marginTop: 20, 
+    padding: 10,
+    alignItems: 'center',
+    // color: Colors.WHITE,
+    backgroundColor: Colors.BLUE,
+    height: 50,
+    width: 300,
+    margin: 20,
+    borderRadius: 10,
+    paddingTop: 15,
   },
 });

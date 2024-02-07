@@ -16,5 +16,6 @@ export default {
     PINK: '#FF91A4',
     INDIGO: '#4B0082',
     TEAL: '#008080',
+    LIGHTGRAY: '#d3d3d3'
   };
   
