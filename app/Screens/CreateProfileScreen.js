@@ -1,24 +1,24 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, TouchableOpacity, ToastAndroid, Image, TextInput, ScrollView, StyleSheet } from 'react-native';
-import Ionic from 'react-native-vector-icons/Ionicons';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Colors from '../Utils/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { app } from '../../firebaseConfig';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { generateRandomString } from '../Utils/GenerateRandomString';
 import { UserDetailContext } from '../Contexts/UserDetailContext';
-
+import CheckBox from 'react-native-checkbox';
 
 export default function CreateProfileScreen() {
-
-    const {userDetail, setUserDetail} = useContext(UserDetailContext);
-
+    const { userDetail, setUserDetail } = useContext(UserDetailContext);
     const navigation = useNavigation();
     const storage = getStorage(app);
     const db = getFirestore(app);
+    const [interestsVisible, setInterestsVisible] = useState(false);
+    const [selectedInterests, setSelectedInterests] = useState([]);
+    const interests = ['Museum', 'Historic Place', 'College', 'Travel'];
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -28,8 +28,8 @@ export default function CreateProfileScreen() {
             quality: 1,
         });
 
-        if (!result.canceled) {
-            const imageBlob = await uploadImageAsync(result.assets[0].uri)
+        if (!result.cancelled) {
+            const imageBlob = await uploadImageAsync(result.assets[0].uri);
             setUserDetail(prevState => ({ ...prevState, image: imageBlob }));
         }
     };
@@ -60,7 +60,6 @@ export default function CreateProfileScreen() {
         } catch (error) {
             console.log('error: ', error);
         }
-
     }
 
     const saveInfo = async () => {
@@ -73,7 +72,7 @@ export default function CreateProfileScreen() {
         });
         ToastAndroid.show('Profile Created Successfully!', ToastAndroid.SHORT);
         navigation.navigate('HomePage');
-    }
+    };
 
     return (
         <ScrollView style={styles.container}>
@@ -119,14 +118,36 @@ export default function CreateProfileScreen() {
                         numberOfLines={3}
                     />
                 </View>
+                <View style={styles.formField}>
+                    <Text style={styles.label}>Interests</Text>
+                    <TouchableOpacity style={styles.dropdown} onPress={() => setInterestsVisible(prev => !prev)}>
+                        <Text>{selectedInterests.length > 0 ? `${selectedInterests.length} interests selected` : 'Select interests'}</Text>
+                    </TouchableOpacity>
+                    {interestsVisible && (
+                        <ScrollView style={styles.dropdownContent}>
+                            {interests.map((interest, index) => (
+                                <View key={index} style={styles.checkboxContainer}>
+                                    <Text style={styles.dropdownItem}>{interest}</Text>
+                                    <CheckBox
+                                        isChecked={selectedInterests.includes(interest)}
+                                        onClick={() => {
+                                            if (selectedInterests.includes(interest)) {
+                                                setSelectedInterests(prev => prev.filter(item => item !== interest));
+                                            } else {
+                                                setSelectedInterests(prev => [...prev, interest]);
+                                            }
+                                        }}
+                                    />
+                                </View>
+                            ))}
+                        </ScrollView>
+                    )}
+                </View>
             </View>
             <TouchableOpacity
-                style={styles.nextButton}
-                onPress={() => {
-                    // CreateProfile(image);
-                    saveInfo();
-                }}>
-                <Text style={styles.nextButtonText}>Next</Text>
+                style={styles.saveButton}
+                onPress={saveInfo}>
+                <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
         </ScrollView>
     );
@@ -135,7 +156,7 @@ export default function CreateProfileScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: 'lightyellow',
     },
     heading: {
         fontSize: 24,
@@ -172,18 +193,50 @@ const styles = StyleSheet.create({
     },
     input: {
         fontSize: 16,
-        borderBottomWidth: 1,
+        borderWidth: 1,
         borderColor: '#CDCDCD',
+        borderRadius: 8,
+        padding: 10,
+        backgroundColor: 'white', // Background color for the text input
     },
-    nextButton: {
+    saveButton: {
         backgroundColor: Colors.BLUE,
         paddingVertical: 15,
         alignItems: 'center',
         marginHorizontal: 20,
         borderRadius: 8,
     },
-    nextButtonText: {
+    saveButtonText: {
         color: 'white',
         fontSize: 16,
     },
+    dropdown: {
+        borderWidth: 1,
+        borderColor: '#CDCDCD',
+        padding: 10,
+        borderRadius: 5,
+        backgroundColor: 'white', // Background color for the dropdown
+    },
+    dropdownContent: {
+        maxHeight: 200,
+        borderWidth: 1,
+        borderColor: '#CDCDCD',
+        borderRadius: 5,
+        marginTop: 5,
+        backgroundColor: 'white', // Background color for the dropdown content
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderBottomWidth: 1,
+        borderColor: '#CDCDCD',
+    },
+    dropdownItem: {
+        flex: 1,
+    },
 });
+
+export { CreateProfileScreen };

@@ -72,8 +72,8 @@ export default function App() {
           <View style={styles.container}>
             <SignedIn>
               <NavigationContainer>
-                <TabNavigation />
-                {/* <NewUserNavigation /> */}
+                {/* <TabNavigation /> */}
+                {<NewUserNavigation />}
               </NavigationContainer>
               {/* <OnBoardingScreen /> */}
             </SignedIn>

@@ -1,31 +1,28 @@
-import React, { useContext, useState } from 'react';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    ToastAndroid,
-    Image,
-    TextInput,
-    StyleSheet,
-    ScrollView,
-} from 'react-native';
-import Ionic from 'react-native-vector-icons/Ionicons';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ToastAndroid, Image, TextInput, StyleSheet, ScrollView } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../Utils/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { UserDetailContext } from '../../Contexts/UserDetailContext';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
-import { doc, getFirestore, setDoc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL } from "firebase/storage";
+import { doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from '../../../firebaseConfig';
-
+import CheckBox from 'react-native-checkbox'; // Import CheckBox component
 
 export default function EditProfile({ route, navigation }) {
-    const { name, accountName, profileImage, bio } = route.params;
     const { userDetail, setUserDetail } = useContext(UserDetailContext);
+    const { name, accountName, profileImage, bio, interests } = route.params;
 
     const storage = getStorage(app);
     const db = getFirestore(app);
+
+    const [selectedInterests, setSelectedInterests] = useState([]);
+
+    useEffect(() => {
+        setSelectedInterests(interests || []);
+    }, [interests]);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -35,7 +32,7 @@ export default function EditProfile({ route, navigation }) {
             quality: 1,
         });
 
-        if (!result.canceled) {
+        if (!result.cancelled) {
             const imageBlob = await uploadImageAsync(result.assets[0].uri)
             setUserDetail(prevState => ({ ...prevState, image: imageBlob }));
         }
@@ -67,22 +64,19 @@ export default function EditProfile({ route, navigation }) {
         } catch (error) {
             console.log('error: ', error);
         }
-
     }
-
-    console.log(userDetail);
 
     const onEditProfile = async () => {
         const washingtonRef = doc(db, "UserDetail", " " + userDetail.id.trim());
 
         await updateDoc(washingtonRef, {
             userDetail: userDetail,
+            interests: selectedInterests, // Update the interests in the database
         });
         console.log("updated");
-        ToastAndroid.show('Edited Sucessfully !', ToastAndroid.SHORT);
+        ToastAndroid.show('Edited Successfully!', ToastAndroid.SHORT);
         navigation.goBack();
     }
-
 
     return (
         <ScrollView style={styles.container}>
@@ -93,7 +87,7 @@ export default function EditProfile({ route, navigation }) {
                 <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Edit Profile</Text>
                 <TouchableOpacity
                     onPress={() => {
-                        onEditProfile();  // You may want to call your update function here
+                        onEditProfile(); // Call the function to update the profile
                     }}>
                     <Ionicons name="checkmark" style={{ fontSize: 35, color: '#3493D9' }} />
                 </TouchableOpacity>
@@ -139,8 +133,27 @@ export default function EditProfile({ route, navigation }) {
                         numberOfLines={3}
                     />
                 </View>
+                <View style={styles.formField}>
+                    <Text style={styles.label}>Interests</Text>
+                    <ScrollView style={styles.dropdownContent}>
+                        {Array.isArray(interests) && interests.map((interest, index) => (
+                            <View key={index} style={styles.checkboxContainer}>
+                                <Text style={styles.dropdownItem}>{interest}</Text>
+                                <CheckBox
+                                    isChecked={selectedInterests.includes(interest)}
+                                    onClick={() => {
+                                        if (selectedInterests.includes(interest)) {
+                                            setSelectedInterests(prev => prev.filter(item => item !== interest));
+                                        } else {
+                                            setSelectedInterests(prev => [...prev, interest]);
+                                        }
+                                    }}
+                                />
+                            </View>
+                        ))}
+                    </ScrollView>
+                </View>
             </View>
-
         </ScrollView>
     );
 }
@@ -149,12 +162,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'white',
-    },
-    heading: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginVertical: 20,
     },
     imageContainer: {
         alignItems: 'center',
@@ -196,7 +203,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     nextButtonText: {
-        color: 'white',
+        color:'white',
         fontSize: 16,
     },
     header: {
@@ -206,5 +213,41 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
     },
+    selectedInterestsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginTop: 10,
+        marginBottom: 20,
+    },
+    selectedInterest: {
+        backgroundColor: '#f0f0f0',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginRight: 5,
+        marginBottom: 5,
+        borderRadius: 5,
+    },
+    dropdownContent: {
+        maxHeight: 200,
+        borderWidth: 1,
+        borderColor: '#CDCDCD',
+        borderRadius: 5,
+        marginTop: 5,
+        backgroundColor: 'white', // Background color for the dropdown content
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderBottomWidth: 1,
+        borderColor: '#CDCDCD',
+    },
+    dropdownItem: {
+        flex: 1,
+    },
 });
+
+export { EditProfile };
 

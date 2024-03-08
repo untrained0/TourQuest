@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, Button, Stylesheet} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
 export default function ProfileBody ({
@@ -103,4 +103,3 @@ export default function ProfileBody ({
     </View>
   );
 };
-
