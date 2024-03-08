@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, Image, TextInput, TouchableOpacity, Text } from 'react-native';
+import { View, FlatList, StyleSheet, Image, TouchableOpacity, Text } from 'react-native';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import Colors from '../../Utils/Colors';
 import { app } from '../../../firebaseConfig';
@@ -8,6 +8,7 @@ import { doc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useUser } from '@clerk/clerk-expo';
 import { generateRandomString } from '../../Utils/GenerateRandomString';
 import { UserDetailContext } from '../../Contexts/UserDetailContext';
+import { AntDesign } from '@expo/vector-icons';
 
 export default function PhotoDetailScreen() {
   const isFocused = useIsFocused();
@@ -20,8 +21,6 @@ export default function PhotoDetailScreen() {
 
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const [uploadProgress, setUploadProgress] = useState(0);
-
-
 
   useEffect(() => {
     console.log('Params:', params);
@@ -63,7 +62,6 @@ export default function PhotoDetailScreen() {
       }
     );
   };
-  
 
   const saveInfo = async (videoUrl) => {
     console.log('Data added in firebase database!');
@@ -86,7 +84,6 @@ export default function PhotoDetailScreen() {
     });
     navigation.navigate('Home');
   };
-  
 
   return (
     <View style={styles.container}>
@@ -97,25 +94,14 @@ export default function PhotoDetailScreen() {
         renderItem={({ item, index }) => (
           <View style={styles.imageContainer}>
             <Image source={{ uri: item.uri }} style={styles.capturedImage} />
-            <TextInput
-              style={styles.captionInput}
-              placeholder="Add a Caption..."
-              value={capturedImages[index].caption} // Controlled input
-              onChangeText={(text) => {
-                const updatedCapturedImages = [...capturedImages];
-                updatedCapturedImages[index].caption = text;
-                setCapturedImages(updatedCapturedImages);
-              }}
-              multiline
-            />
+            <Text style={styles.caption}>{capturedImages[index].caption}</Text>
           </View>
         )}
       />
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.addPostButton} onPress={onAddPost}>
-          <Text style={{ color: Colors.WHITE, fontSize: 20, padding: 5 }}>Add Post</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.addButton} onPress={onAddPost}>
+        <AntDesign name="plus" size={24} color="white" />
+        <Text style={styles.addButtonText}>Add Post</Text>
+      </TouchableOpacity>
       {uploadProgress > 0 && (
         <View style={styles.progressContainer}>
           <Text>{`Uploading: ${Math.round(uploadProgress)}%`}</Text>
@@ -128,11 +114,12 @@ export default function PhotoDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    marginBottom: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.LIGHT_GRAY,
   },
   imageContainer: {
-    marginRight: 10,
+    marginBottom: 20,
   },
   capturedImage: {
     width: 150,
@@ -140,22 +127,25 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 5,
   },
-  captionInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 5,
+  caption: {
+    fontSize: 16,
     marginTop: 5,
+    color: Colors.GRAY,
   },
-  buttonContainer: {
+  addButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
-  },
-  addPostButton: {
     backgroundColor: Colors.BLUE,
-    padding: 12,
-    borderRadius: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    marginBottom: 400,
+  },
+  addButtonText: {
+    color: Colors.WHITE,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
   progressContainer: {
     alignItems: 'center',

@@ -1,28 +1,18 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, TextInput, Image, Text } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, TextInput, Text } from 'react-native';
 import { Video } from 'expo-av';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { doc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore';
-import { useUser } from '@clerk/clerk-expo';
-import { app } from '../../../firebaseConfig';
+import { getStorage } from 'firebase/storage';
 import Colors from '../../Utils/Colors';
-import { generateRandomString } from '../../Utils/GenerateRandomString';
 import { UserDetailContext } from '../../Contexts/UserDetailContext';
 
 export default function AfterPostScreen() {
-  const { user } = useUser();
-  const storage = getStorage(app);
-  const db = getFirestore(app);
+  const storage = getStorage();
   const video = useRef(null);
   const captionInput = useRef(null);
   const navigation = useNavigation();
   const params = useRoute().params;
-  const isFocused = useIsFocused();
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
-
-  console.log("images: ",params?.images);
-
 
   const [caption, setCaption] = useState('');
 
@@ -31,44 +21,50 @@ export default function AfterPostScreen() {
     if (params && params.images) {
       console.log('Captured Images:', params.images);
     }
-  }, [isFocused, params?.images]);
+  }, [params?.images]);
 
   console.log(params?.video);
 
   return (
     <View style={styles.container}>
-          <Video
-            ref={video}
-            style={{ width: '100%', flex: 1, marginBottom: '50%' }}
-            source={{
-              uri: params?.video,
-            }}
-            useNativeControls
-            resizeMode="cover"
-            isLooping
-          />
-          {/* {params.images && (
-            <View style={styles.imagesContainer}>
-              {params.images.map((image, index) => (
-                <Image key={index} source={{ uri: image }} style={styles.capturedImage} />
-              ))}
-            </View>
-          )} */}
-          <View style={styles.captionContainer}>
-            <TextInput
-              ref={captionInput}
-              style={styles.captionInput}
-              placeholder="Add a Caption..."
-              onChangeText={(text) => setCaption(text)}
-              multiline
-            />
-            <TouchableOpacity style={styles.addPostButton} 
-            // onPress={onAddPost}
-            onPress = {() => navigation.navigate('PhotoDetail', {images: params.images, videoCaption: caption, video: params?.video})}
-            >
-              <Text style={{ color: Colors.WHITE, fontSize: 20, padding: 5 }}>Next</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.videoContainer}>
+        <Video
+          ref={video}
+          style={styles.video}
+          source={{ uri: params?.video }}
+          useNativeControls
+          resizeMode="contain"
+          isLooping
+        />
+      </View>
+      <View style={styles.infoContainer}>
+        <Text style={styles.infoText}>Add a caption to your video below</Text>
+        <Text style={styles.infoText}>and tap 'Next' to proceed.</Text>
+      </View>
+      <View style={styles.captionContainer}>
+        <TextInput
+          ref={captionInput}
+          style={styles.captionInput}
+          placeholder="Add a Caption...."
+          onChangeText={(text) => setCaption(text)}
+          multiline
+        />
+        <TouchableOpacity
+          style={styles.addPostButton}
+          onPress={() =>
+            navigation.navigate('PhotoDetail', {
+              images: params.images,
+              videoCaption: caption,
+              video: params?.video,
+            })
+          }
+        >
+          <Text style={styles.addPostButtonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Add a caption to your video and tap 'Next' to proceed.</Text>
+      </View>
     </View>
   );
 }
@@ -76,49 +72,60 @@ export default function AfterPostScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f0f0f0', // Light gray background color
+  },
+  videoContainer: {
+    flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 60,
   },
-  recordButton: {
-    backgroundColor: Colors.GREEN,
-    padding: 12,
-    borderRadius: 15,
-    marginBottom: 10,
+  video: {
+    width: '100%',
+    aspectRatio: 16 / 9, // Aspect ratio of the video
   },
-  addPostButton: {
-    backgroundColor: Colors.BLUE,
-    padding: 12,
-    borderRadius: 15,
+  infoContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  infoText: {
+    fontSize: 16,
+    color: Colors.DARK_GRAY,
   },
   captionContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 10,
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: Colors.LIGHT_GRAY,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   captionInput: {
     flex: 1,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginRight: 10,
-    padding: 5,
-  },
-  imagesContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  capturedImage: {
-    width: 50,
     height: 50,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    backgroundColor: Colors.WHITE,
+    borderWidth: 1,
+    borderColor: Colors.GRAY,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  addPostButton: {
+    backgroundColor: Colors.BLUE,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  addPostButtonText: {
+    color: Colors.WHITE,
+    fontSize: 16,
+  },
+  footer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  footerText: {
+    fontSize: 14,
+    color: Colors.DARK_GRAY,
   },
 });

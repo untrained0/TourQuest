@@ -1,89 +1,101 @@
 import React, { useContext } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { UserDetailContext } from '../Contexts/UserDetailContext';
 import ProfileButton from '../Components/ProfileScreen.js/ProfileButton';
 import ProfileBody from '../Components/ProfileScreen.js/ProfileBody';
+import Colors from '../Utils/Colors';
 
 export default function Profile() {
+    const { userDetail, setUserDetail } = useContext(UserDetailContext);
 
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+    let circles = [];
+    const numberOfCircles = 10;
 
-  let circuls = [];
-  let numberofcircels = 10;
+    for (let index = 0; index < numberOfCircles; index++) {
+        let circleStyle = styles.circle;
+        if (index === 0) {
+            circleStyle = [circleStyle, styles.addCircle];
+        } else {
+            circleStyle = [circleStyle, { backgroundColor: generateRandomColor() }];
+        }
+        circles.push(
+            <View key={index} style={circleStyle} />
+        );
+    }
 
-  for (let index = 0; index < numberofcircels; index++) {
-    circuls.push(
-      <View key={index}>
-        {index === 0 ? (
-          <View
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 100,
-              borderWidth: 1,
-              opacity: 0.7,
-              marginHorizontal: 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Entypo name="plus" style={{ fontSize: 40, color: 'black' }} />
-          </View>
-        ) : (
-          <View
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 100,
-              backgroundColor: 'black',
-              opacity: 0.1,
-              marginHorizontal: 5,
-            }}></View>
-        )}
-      </View>,
+    return (
+        <View style={styles.container}>
+            <View style={styles.profileSection}>
+                <ProfileBody
+                    name={userDetail.name}
+                    accountName={userDetail.username}
+                    profileImage={{ uri: userDetail.image }}
+                    bio={userDetail.bio}
+                    followers="3.6M"
+                    following={userDetail.following.length}
+                    post="458"
+                />
+                <ProfileButton
+                    id={0}
+                    name={userDetail.name}
+                    accountName={userDetail.username}
+                    profileImage={{ uri: userDetail.image }}
+                    bio={userDetail.bio}
+                />
+            </View>
+            <View style={styles.highlightsSection}>
+                <Text style={styles.highlightsTitle}>Story Highlights</Text>
+                <ScrollView
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.highlightsContainer}>
+                    {circles}
+                </ScrollView>
+            </View>
+        </View>
     );
-  }
-
-  return (
-    <View style={{ width: '100%', height: '100%', backgroundColor: 'white' }}>
-      <View style={{ width: '100%', padding: 10 }}>
-        <ProfileBody
-          name={userDetail.name}
-          accountName={userDetail.username}
-          profileImage={{ uri: userDetail.image }}
-          bio={userDetail.bio}
-          followers="3.6M"
-          following={userDetail.following.length}
-          post="458"
-        />
-        <ProfileButton
-          id={0}
-          name={userDetail.name}
-          accountName={userDetail.username}
-          profileImage={{ uri: userDetail.image }}
-          bio={userDetail.bio}
-        />
-      </View>
-      <View>
-        <Text
-          style={{
-            padding: 10,
-            letterSpacing: 1,
-            fontSize: 14,
-          }}>
-          Story Highlights
-        </Text>
-        <ScrollView
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          style={{
-            paddingVertical: 5,
-            paddingHorizontal: 10,
-          }}>
-          {circuls}
-        </ScrollView>
-      </View>
-      {/* <BottomTabView /> */}
-    </View>
-  );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: Colors.WHITE,
+    },
+    profileSection: {
+        padding: 10,
+    },
+    highlightsSection: {
+        borderTopWidth: 1,
+        borderTopColor: Colors.LIGHT_GRAY,
+        paddingTop: 10,
+    },
+    highlightsTitle: {
+        paddingLeft: 10,
+        letterSpacing: 1,
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    highlightsContainer: {
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+    },
+    circle: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: Colors.GRAY,
+        opacity: 0.3,
+        marginHorizontal: 5,
+    },
+    addCircle: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: Colors.PRIMARY,
+        opacity: 0.7,
+    },
+});
+
+function generateRandomColor() {
+    return '#' + Math.floor(Math.random() * 16777215).toString(16);
+}

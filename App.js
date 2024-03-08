@@ -16,6 +16,7 @@ import { useState } from 'react';
 import NewUserNavigation from './app/Navigations/NewUserNavigation';
 import PopupFile from './app/Screens/PopUpFile';
 import CameraOf from './app/Components/HomeScreen/Camera';
+import CreateProfileScreen from './app/Screens/CreateProfileScreen';
 
 // const CLERK_PUBLISHABLE_KEY= "pk_test_Y2F1c2FsLWdpcmFmZmUtNDguY2xlcmsuYWNjb3VudHMuZGV2JA";
 const CLERK_PUBLISHABLE_KEY = "pk_test_bG92aW5nLW95c3Rlci05NC5jbGVyay5hY2NvdW50cy5kZXYk";
@@ -75,6 +76,7 @@ export default function App() {
             <SignedIn>
               <NavigationContainer>
                 <TabNavigation />
+                {/* <CreateProfileScreen /> */}
                 {/* <NewUserNavigation /> */}
               </NavigationContainer>
               {/* <OnBoardingScreen /> */}

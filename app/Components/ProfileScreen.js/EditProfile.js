@@ -1,28 +1,20 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TouchableOpacity, ToastAndroid, Image, TextInput, StyleSheet, ScrollView } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Colors from '../../Utils/Colors';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import Colors from '../../Utils/Colors';
 import { UserDetailContext } from '../../Contexts/UserDetailContext';
-import { getStorage, ref, uploadBytes } from "firebase/storage";
-import { getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from '../../../firebaseConfig';
-import CheckBox from 'react-native-checkbox'; // Import CheckBox component
 
 export default function EditProfile({ route, navigation }) {
+    const { name, accountName, profileImage, bio } = route.params;
     const { userDetail, setUserDetail } = useContext(UserDetailContext);
-    const { name, accountName, profileImage, bio, interests } = route.params;
+    const [editSuccess, setEditSuccess] = useState(false);
 
     const storage = getStorage(app);
     const db = getFirestore(app);
-
-    const [selectedInterests, setSelectedInterests] = useState([]);
-
-    useEffect(() => {
-        setSelectedInterests(interests || []);
-    }, [interests]);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -33,7 +25,7 @@ export default function EditProfile({ route, navigation }) {
         });
 
         if (!result.cancelled) {
-            const imageBlob = await uploadImageAsync(result.assets[0].uri)
+            const imageBlob = await uploadImageAsync(result.uri);
             setUserDetail(prevState => ({ ...prevState, image: imageBlob }));
         }
     };
@@ -45,7 +37,7 @@ export default function EditProfile({ route, navigation }) {
                 resolve(xhr.response);
             };
             xhr.onerror = function (e) {
-                console.log(e);
+                console.error(e);
                 reject(new TypeError("Network request failed"));
             };
             xhr.responseType = "blob";
@@ -55,25 +47,19 @@ export default function EditProfile({ route, navigation }) {
 
         try {
             const storageRef = ref(storage, 'Profile_photos/' + Date.now());
-            const result = await uploadBytes(storageRef, blob);
-
-            blob.close();
-
+            await uploadBytes(storageRef, blob);
             return await getDownloadURL(storageRef);
-
         } catch (error) {
-            console.log('error: ', error);
+            console.error('Error uploading image: ', error);
         }
     }
 
     const onEditProfile = async () => {
         const washingtonRef = doc(db, "UserDetail", " " + userDetail.id.trim());
-
         await updateDoc(washingtonRef, {
             userDetail: userDetail,
-            interests: selectedInterests, // Update the interests in the database
         });
-        console.log("updated");
+        setEditSuccess(true);
         ToastAndroid.show('Edited Successfully!', ToastAndroid.SHORT);
         navigation.goBack();
     }
@@ -82,20 +68,17 @@ export default function EditProfile({ route, navigation }) {
         <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="close-outline" style={{ fontSize: 35 }} />
+                    <Ionicons name="close-outline" style={styles.headerIcon} />
                 </TouchableOpacity>
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Edit Profile</Text>
-                <TouchableOpacity
-                    onPress={() => {
-                        onEditProfile(); // Call the function to update the profile
-                    }}>
-                    <Ionicons name="checkmark" style={{ fontSize: 35, color: '#3493D9' }} />
+                <Text style={styles.headerTitle}>Edit Profile</Text>
+                <TouchableOpacity onPress={onEditProfile}>
+                    <Ionicons name="checkmark" style={[styles.headerIcon, styles.headerIconCheck]} />
                 </TouchableOpacity>
             </View>
             <View style={styles.imageContainer}>
                 <TouchableOpacity onPress={pickImage}>
                     <Image
-                        source={userDetail.image == null ? require('./../../../assets/images/plus-icon.png') : { uri: userDetail.image }}
+                        source={userDetail.image ? { uri: userDetail.image } : require('./../../../assets/images/plus-icon.png')}
                         style={styles.profileImage}
                     />
                     <View style={styles.cameraIcon}>
@@ -128,32 +111,13 @@ export default function EditProfile({ route, navigation }) {
                         placeholder="Bio"
                         value={userDetail.bio}
                         onChangeText={(bio) => setUserDetail((prevState) => ({ ...prevState, bio }))}
-                        style={styles.input}
+                        style={[styles.input, styles.bioInput]}
                         multiline={true}
                         numberOfLines={3}
                     />
                 </View>
-                <View style={styles.formField}>
-                    <Text style={styles.label}>Interests</Text>
-                    <ScrollView style={styles.dropdownContent}>
-                        {Array.isArray(interests) && interests.map((interest, index) => (
-                            <View key={index} style={styles.checkboxContainer}>
-                                <Text style={styles.dropdownItem}>{interest}</Text>
-                                <CheckBox
-                                    isChecked={selectedInterests.includes(interest)}
-                                    onClick={() => {
-                                        if (selectedInterests.includes(interest)) {
-                                            setSelectedInterests(prev => prev.filter(item => item !== interest));
-                                        } else {
-                                            setSelectedInterests(prev => [...prev, interest]);
-                                        }
-                                    }}
-                                />
-                            </View>
-                        ))}
-                    </ScrollView>
-                </View>
             </View>
+            {editSuccess && <Text style={styles.successMessage}>Profile Updated Successfully!</Text>}
         </ScrollView>
     );
 }
@@ -161,11 +125,31 @@ export default function EditProfile({ route, navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: Colors.LIGHT_GRAY,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        backgroundColor: Colors.WHITE,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    headerIcon: {
+        fontSize: 30,
+        color: Colors.DARK_GRAY,
+    },
+    headerIconCheck: {
+        color: Colors.PRIMARY,
     },
     imageContainer: {
         alignItems: 'center',
         padding: 20,
+        backgroundColor: Colors.WHITE,
     },
     profileImage: {
         width: 150,
@@ -179,9 +163,13 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 10,
         zIndex: 9999,
+        backgroundColor: Colors.WHITE,
+        borderRadius: 15,
+        padding: 5,
     },
     formContainer: {
         padding: 20,
+        backgroundColor: Colors.WHITE,
     },
     formField: {
         marginBottom: 20,
@@ -193,61 +181,16 @@ const styles = StyleSheet.create({
     input: {
         fontSize: 16,
         borderBottomWidth: 1,
-        borderColor: '#CDCDCD',
+        borderColor: Colors.LIGHT_GRAY,
     },
-    nextButton: {
-        backgroundColor: Colors.BLUE,
-        paddingVertical: 15,
-        alignItems: 'center',
-        marginHorizontal: 20,
-        borderRadius: 8,
+    bioInput: {
+        height: 100,
+        paddingTop: 10,
     },
-    nextButtonText: {
-        color:'white',
+    successMessage: {
+        textAlign: 'center',
+        marginTop: 20,
+        color: Colors.PRIMARY,
         fontSize: 16,
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-    },
-    selectedInterestsContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginTop: 10,
-        marginBottom: 20,
-    },
-    selectedInterest: {
-        backgroundColor: '#f0f0f0',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginRight: 5,
-        marginBottom: 5,
-        borderRadius: 5,
-    },
-    dropdownContent: {
-        maxHeight: 200,
-        borderWidth: 1,
-        borderColor: '#CDCDCD',
-        borderRadius: 5,
-        marginTop: 5,
-        backgroundColor: 'white', // Background color for the dropdown content
-    },
-    checkboxContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderBottomWidth: 1,
-        borderColor: '#CDCDCD',
-    },
-    dropdownItem: {
-        flex: 1,
-    },
 });
-
-export { EditProfile };
-
