@@ -1,11 +1,12 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 // import Profile from '../Screens/ProfileScreen';
-import CreateProfileScreen from './../Screens/CreateProfileScreen';
+import CreateProfileScreen from '../Screens/CreateProfileScreen';
 // import SignUpScreen from '../Screens/SignUpScreen';
 import TabNavigation from './TabNavigation';
 // import CameraOf from '../Components/HomeScreen/Camera';
 import PopupFile from '../Screens/PopUpFile';
+import HomeScreen from '../Screens/HomeScreen';
 // import Recorder from '../Components/AddPost/Recorder';
 
 const Stack = createStackNavigator();
@@ -24,11 +25,11 @@ const screenOptions = {
     }
   }
 
-export default function NewUserNavigation() {
+export default function DemoNavigation() {
     return (
         <Stack.Navigator screenOptions = {screenOptions}>
-            <Stack.Screen name="CreateProfile" component={CreateProfileScreen} />
-            <Stack.Screen name="HomePage" component={TabNavigation} />
+            {/* <Stack.Screen name="CreateProfile" component={CreateProfileScreen} /> */}
+            <Stack.Screen name="HomePage" component={HomeScreen} />
             <Stack.Screen name="Tour" component={PopupFile} />
             {/* <Stack.Screen name="CaptionDetail" component={CaptionDetail} /> */}
         </Stack.Navigator>

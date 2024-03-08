@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 
 import Colors from '../Utils/Colors';
+import { useEffect } from 'react';
 
 export default function AddPostScreen() {
-
   const navigation = useNavigation();
   const params = useRoute().params;
   const isFocused = useIsFocused();
@@ -21,13 +20,16 @@ export default function AddPostScreen() {
     navigation.navigate('Recorder');
   };
 
-  
   return (
     <View style={styles.container}>
-   
-        <TouchableOpacity style={styles.recordButton} onPress={onRecord}>
-          <Text style={{ color: Colors.WHITE, fontSize: 20, padding: 5 }}>Record</Text>
-        </TouchableOpacity>
+      <Text style={styles.tapToRecordText}>Tap here to record...</Text>
+
+      <TouchableOpacity style={styles.recordButton} onPress={onRecord}>
+        <View style={styles.innerButton}>
+          <View style={styles.redDot} />
+          <Text style={styles.recText}>REC</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -37,47 +39,35 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 60,
+  },
+  tapToRecordText: {
+    color: Colors.GRAY,
+    fontSize: 18,
+    marginBottom: 20,
   },
   recordButton: {
-    backgroundColor: Colors.GREEN,
-    padding: 12,
-    borderRadius: 15,
-    marginBottom: 10,
-  },
-  addPostButton: {
-    backgroundColor: Colors.BLUE,
-    padding: 12,
-    borderRadius: 15,
-  },
-  captionContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: Colors.LIGHTGREY,
+    borderRadius: 10,
+    elevation: 5,
+    paddingHorizontal:10,
+    paddingVertical: 15,
+    width: '30%', // Adjust the width as needed
     alignItems: 'center',
   },
-  captionInput: {
-    flex: 1,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginRight: 10,
-    padding: 5,
-  },
-  imagesContainer: {
+  innerButton: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 10,
+    alignItems: 'center',
   },
-  capturedImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 5,
-    marginHorizontal: 5,
+  redDot: {
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
+    backgroundColor: Colors.RED,
+    marginRight: 10,
+  },
+  recText: {
+    color: Colors.GRAY,
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });

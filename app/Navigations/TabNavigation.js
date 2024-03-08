@@ -10,6 +10,7 @@ import ProfileScreenNavigation from './../Navigations/ProfileScreenNavigation';
 import HomeScreen from '../Screens/HomeScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import OnBoardingScreen from '../Screens/OnBoardingScreen';
+import DemoNavigation from './DemoNavigation';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,7 +32,8 @@ const screenOptions = {
 export default function TabNavigation() {
   return (
     <Tab.Navigator screenOptions={screenOptions}>
-      <Tab.Screen name="Home" component={HomeScreen}
+      <Tab.Screen name="Home" component={DemoNavigation}
+      // <Tab.Screen name="Home" component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
@@ -51,13 +53,13 @@ export default function TabNavigation() {
             <FontAwesome name="user" size={size} color={color} />
           )
         }} />
-      <Tab.Screen name="OnBoarding" component={OnBoardingScreen}
+      {/* <Tab.Screen name="OnBoarding" component={OnBoardingScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           )
         }}
-      />
+      /> */}
 
     </Tab.Navigator>
   )

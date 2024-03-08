@@ -11,6 +11,7 @@ import { doc, getFirestore, updateDoc } from "firebase/firestore";
 import { app } from '../../../firebaseConfig';
 import CommentScreen from './CommentScreen';
 import { UserDetailContext } from '../../Contexts/UserDetailContext';
+import { useNavigation } from '@react-navigation/native';
 
 
 export default function PostItem({ item }) {
@@ -24,6 +25,8 @@ export default function PostItem({ item }) {
 
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const { user } = useUser();
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     setLikeCount(item?.Likes);
@@ -114,13 +117,13 @@ export default function PostItem({ item }) {
     if (!item?.createdAt) {
       return 'Unknown date';
     }
-  
+
     const currentDate = new Date();
     const createdDate = item.createdAt.toDate(); // Convert Firestore timestamp to JavaScript Date object
-    
+
     const timeDifference = Math.abs(currentDate - createdDate);
     const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-  
+
     if (daysDifference === 0) {
       // If it's today, show hours
       const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
@@ -211,8 +214,8 @@ export default function PostItem({ item }) {
         <View style={styles.actionRightContainer}>
           <TouchableOpacity
             style={styles.followButtonContainer}
-            // onPress={followBtnPress}
-            activeOpacity={0.7} // Adjust the opacity to control the press effect
+            onPress={() => navigation.navigate('Tour')} // Wrap navigation function in arrow function
+            activeOpacity={0.7}
           >
             <Text style={styles.followButtonText}>Tour</Text>
           </TouchableOpacity>
@@ -226,7 +229,7 @@ export default function PostItem({ item }) {
         </Text>
       </View>
       <TouchableOpacity onPress={() => handleCommentPress()}>
-        <Text style={styles.commentCount}>View all {item?.Comments.length} {item?.Comments.length==1?'comment':'comments'}</Text>
+        <Text style={styles.commentCount}>View all {item?.Comments.length} {item?.Comments.length == 1 ? 'comment' : 'comments'}</Text>
       </TouchableOpacity>
       <Text style={styles.postCreated}>{calculateTimeDifference()}</Text>
 

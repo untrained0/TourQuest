@@ -14,6 +14,8 @@ import { NativeBaseProvider } from 'native-base';
 import { UserDetailContext } from './app/Contexts/UserDetailContext';
 import { useState } from 'react';
 import NewUserNavigation from './app/Navigations/NewUserNavigation';
+import PopupFile from './app/Screens/PopUpFile';
+import CameraOf from './app/Components/HomeScreen/Camera';
 
 // const CLERK_PUBLISHABLE_KEY= "pk_test_Y2F1c2FsLWdpcmFmZmUtNDguY2xlcmsuYWNjb3VudHMuZGV2JA";
 const CLERK_PUBLISHABLE_KEY = "pk_test_bG92aW5nLW95c3Rlci05NC5jbGVyay5hY2NvdW50cy5kZXYk";
@@ -74,6 +76,11 @@ export default function App() {
               <NavigationContainer>
                 <TabNavigation />
                 {/* <NewUserNavigation /> */}
+                {/* <View>
+                  <PopupFile />
+                </View> */}
+                {/* <PopupFile /> */}
+                {/* <CameraOf /> */}
               </NavigationContainer>
               {/* <OnBoardingScreen /> */}
             </SignedIn>
