@@ -76,11 +76,6 @@ export default function App() {
               <NavigationContainer>
                 <TabNavigation />
                 {/* <NewUserNavigation /> */}
-                {/* <View>
-                  <PopupFile />
-                </View> */}
-                {/* <PopupFile /> */}
-                {/* <CameraOf /> */}
               </NavigationContainer>
               {/* <OnBoardingScreen /> */}
             </SignedIn>
