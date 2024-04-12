@@ -6,6 +6,7 @@ import CreateProfileScreen from './../Screens/CreateProfileScreen';
 import TabNavigation from './TabNavigation';
 // import CameraOf from '../Components/HomeScreen/Camera';
 import PopupFile from '../Screens/PopUpFile';
+import PopupExample from '../Screens/OnBoardingScreen';
 // import Recorder from '../Components/AddPost/Recorder';
 
 const Stack = createStackNavigator();
@@ -28,6 +29,7 @@ export default function NewUserNavigation() {
     return (
         <Stack.Navigator screenOptions = {screenOptions}>
             <Stack.Screen name="CreateProfile" component={CreateProfileScreen} />
+            {/* <Stack.Screen name="Popups" component={PopupExample} /> */}
             <Stack.Screen name="HomePage" component={TabNavigation} />
             <Stack.Screen name="Tour" component={PopupFile} />
             {/* <Stack.Screen name="CaptionDetail" component={CaptionDetail} /> */}

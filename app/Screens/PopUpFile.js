@@ -56,10 +56,11 @@ const PopupFile = () => {
     }, []);
 
     useEffect(() => {
-        // Example popup data
+        // Example popup data for three different locations
         const popupData = [
-            { id: '1', latitude: 19.1824051, longitude: 72.9780463, content: 'Popup 1' },
-            { id: '2', latitude: 19.1824051, longitude: 72.9780463, content: 'Popup 2' },
+            { id: '1', latitude: 19.0449631, longitude: 72.8890771, content: 'Popup 1' },
+            { id: '2', latitude: 19.0452106, longitude: 72.8889754, content: 'Popup 2' },
+            // { id: '3', latitude: 19.0454000, longitude: 72.8892000, content: 'Popup 3' },
         ];
 
         // Calculate distance and filter popups within a certain range (e.g., 100 meters)

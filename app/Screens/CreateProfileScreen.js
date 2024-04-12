@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ToastAndroid, Image, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -10,6 +10,7 @@ import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { generateRandomString } from '../Utils/GenerateRandomString';
 import { UserDetailContext } from '../Contexts/UserDetailContext';
 import CheckBox from 'react-native-checkbox';
+import * as Animatable from 'react-native-animatable';
 
 export default function CreateProfileScreen() {
     const { userDetail, setUserDetail } = useContext(UserDetailContext);
@@ -19,6 +20,11 @@ export default function CreateProfileScreen() {
     const [interestsVisible, setInterestsVisible] = useState(false);
     const [selectedInterests, setSelectedInterests] = useState([]);
     const interests = ['Museum', 'Historic Place', 'College', 'Travel'];
+    const formRef = useRef(null);
+
+    useEffect(() => {
+        formRef.current.fadeInUp(800); // Fade in the form container with duration of 800ms
+    }, []);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -77,6 +83,7 @@ export default function CreateProfileScreen() {
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.heading}>Create Profile</Text>
+            <Animatable.View ref={formRef} style={styles.formContainer}>
             <View style={styles.imageContainer}>
                 <TouchableOpacity onPress={pickImage}>
                     <Image
@@ -149,6 +156,7 @@ export default function CreateProfileScreen() {
                 onPress={saveInfo}>
                 <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
+            </Animatable.View>
         </ScrollView>
     );
 }
@@ -156,7 +164,7 @@ export default function CreateProfileScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'lightyellow',
+        backgroundColor: 'lightgreen',
     },
     heading: {
         fontSize: 24,

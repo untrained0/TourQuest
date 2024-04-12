@@ -7,6 +7,8 @@ import TabNavigation from './TabNavigation';
 // import CameraOf from '../Components/HomeScreen/Camera';
 import PopupFile from '../Screens/PopUpFile';
 import HomeScreen from '../Screens/HomeScreen';
+import PopupExample from '../Screens/OnBoardingScreen';
+import SignUpScreen from '../Screens/SignUpScreen';
 // import Recorder from '../Components/AddPost/Recorder';
 
 const Stack = createStackNavigator();
@@ -29,6 +31,8 @@ export default function DemoNavigation() {
     return (
         <Stack.Navigator screenOptions = {screenOptions}>
             {/* <Stack.Screen name="CreateProfile" component={CreateProfileScreen} /> */}
+            {/* <Stack.Screen name="signin" component={SignUpScreen} /> */}
+            {/* <Stack.Screen name="Popups" component={PopupExample} /> */}
             <Stack.Screen name="HomePage" component={HomeScreen} />
             <Stack.Screen name="Tour" component={PopupFile} />
             {/* <Stack.Screen name="CaptionDetail" component={CaptionDetail} /> */}
