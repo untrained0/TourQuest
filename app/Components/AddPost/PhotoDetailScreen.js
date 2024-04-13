@@ -4,7 +4,7 @@ import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import Colors from '../../Utils/Colors';
 import { app } from '../../../firebaseConfig';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { doc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getFirestore, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { useUser } from '@clerk/clerk-expo';
 import { generateRandomString } from '../../Utils/GenerateRandomString';
 import { UserDetailContext } from '../../Contexts/UserDetailContext';
@@ -66,6 +66,14 @@ export default function PhotoDetailScreen() {
   
 
   const saveInfo = async (videoUrl) => {
+  //   const updatedUserDetail = { ...userDetail, points: userDetail.points + 100 };
+  // setUserDetail(updatedUserDetail);
+
+  // // Save user details to Firebase
+  // const washingtonRef = doc(db, "UserDetail", " " + userDetail.id.trim());
+  // await updateDoc(washingtonRef, {
+  //   userDetail: updatedUserDetail,
+  // });
     console.log('Data added in firebase database!');
     const docId = generateRandomString();
     await setDoc(doc(db, 'addedPost', docId), {

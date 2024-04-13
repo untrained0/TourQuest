@@ -34,7 +34,7 @@ export default function CreateProfileScreen() {
             quality: 1,
         });
 
-        if (!result.cancelled) {
+        if (!result.canceled) {
             const imageBlob = await uploadImageAsync(result.assets[0].uri);
             setUserDetail(prevState => ({ ...prevState, image: imageBlob }));
         }

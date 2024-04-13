@@ -29,7 +29,7 @@ export default function NewUserNavigation() {
     return (
         <Stack.Navigator screenOptions = {screenOptions}>
             <Stack.Screen name="CreateProfile" component={CreateProfileScreen} />
-            {/* <Stack.Screen name="Popups" component={PopupExample} /> */}
+            <Stack.Screen name="Popups" component={PopupExample} />
             <Stack.Screen name="HomePage" component={TabNavigation} />
             <Stack.Screen name="Tour" component={PopupFile} />
             {/* <Stack.Screen name="CaptionDetail" component={CaptionDetail} /> */}
