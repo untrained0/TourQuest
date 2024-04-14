@@ -72,9 +72,9 @@ export default function App() {
           <View style={styles.container}>
             <SignedIn>
               <NavigationContainer>
-                <TabNavigation />
+                {/* <TabNavigation /> */}
                 {/* <CreateProfileScreen /> */}
-                {/* <NewUserNavigation />  */}
+                <NewUserNavigation /> 
                 {/* <PopupFile /> */}
               </NavigationContainer>
               {/* <OnBoardingScreen /> */}

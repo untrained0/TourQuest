@@ -117,7 +117,7 @@ export default function SignUpScreen() {
         <TouchableOpacity style={styles.signUpButton} onPress={onSignUp}>
           <Text style={{ color: Colors.WHITE }}>Sign Up</Text>
         </TouchableOpacity>
-        <QRCode value="https://www.github.com/untrained0" />
+        {/* <QRCode value="https://www.github.com/untrained0" /> */}
       </ScrollView>
     </NativeBaseProvider>
   );
